@@ -23,7 +23,6 @@ import torch
 from langchain_huggingface import ChatHuggingFace
 from langchain_community.llms import HuggingFaceHub
 
-import faiss
 import tempfile
 import os
 import time
@@ -40,10 +39,8 @@ from PIL import Image
 
 load_dotenv()
 
-logo_local = Image.open('wtz_ultra_logo.png')
-
-
 # Configurações do Streamlit
+logo_local = Image.open('wtz_ultra_logo.png')
 st.set_page_config(page_title="Witz IA 📚", page_icon="📚")
 st.image(image=logo_local)
 st.title("Eu sou o Witz, seu assistente Virtual 📚")
@@ -86,11 +83,15 @@ def config_retriever(uploads):
     # Carregar documentos
     docs = []
     temp_dir = tempfile.TemporaryDirectory()
+    
     for file in uploads:
         temp_filepath = os.path.join(temp_dir.name, file.name)
+        
         with open(temp_filepath, "wb") as f:
             f.write(file.getvalue())
+        
         loader = PyPDFLoader(temp_filepath)
+        
         docs.extend(loader.load())
 
     # Divisão em pedaços de texto / Split
@@ -164,7 +165,6 @@ def config_rag_chain(model_class, retriever):
     # Configurar LLM e Chain para perguntas e respostas (Q&A)
 
     qa_chain = create_stuff_documents_chain(llm, qa_prompt)
-
     rag_chain = create_retrieval_chain(
         history_aware_retriever,
         qa_chain,
